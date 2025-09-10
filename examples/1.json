@@ -1,0 +1,166 @@
+[
+    {
+        "id": "start_event",
+        "data": {
+            "label": "Начало процесса: Выбор услуги клиентом",
+            "children": [
+                "choose_service_task"
+            ],
+            "eventType": "start"
+        },
+        "type": "event"
+    },
+    {
+        "id": "choose_service_task",
+        "data": {
+            "label": "Клиент выбирает услугу на сайте",
+            "children": [
+                "confirmation_needed_gateway"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "confirmation_needed_gateway",
+        "data": {
+            "label": "Требуется ли подтверждение заказа?",
+            "children": [
+                "send_sms_task",
+                "create_order_task"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "send_sms_task",
+        "data": {
+            "label": "Отправить SMS с кодом подтверждения",
+            "children": [
+                "wait_for_confirmation_task"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "wait_for_confirmation_task",
+        "data": {
+            "label": "Ожидание подтверждения от клиента",
+            "children": [
+                "confirmation_received_gateway"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "confirmation_received_gateway",
+        "data": {
+            "label": "Подтверждение получено?",
+            "children": [
+                "create_order_task",
+                "cancel_order_task"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "create_order_task",
+        "data": {
+            "label": "Создать заказ в CRM",
+            "children": [
+                "order_created_gateway"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "order_created_gateway",
+        "data": {
+            "label": "Успешно создано?",
+            "children": [
+                "success_end_event",
+                "create_order_error_task"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "success_end_event",
+        "data": {
+            "label": "Заказ успешно создан",
+            "eventType": "end"
+        },
+        "type": "event"
+    },
+    {
+        "id": "create_order_error_task",
+        "data": {
+            "label": "Обработка ошибки создания заказа",
+            "children": [
+                "error_end_event"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "error_end_event",
+        "data": {
+            "label": "Ошибка создания заказа",
+            "eventType": "end"
+        },
+        "type": "event"
+    },
+    {
+        "id": "cancel_order_task",
+        "data": {
+            "label": "Отменить заказ",
+            "children": [
+                "cancel_end_event"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "cancel_end_event",
+        "data": {
+            "label": "Заказ отменен",
+            "eventType": "end"
+        },
+        "type": "event"
+    },
+    {
+        "id": "error_sms_task",
+        "data": {
+            "label": "Ошибка отправки SMS",
+            "children": [
+                "cancel_order_task"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "wait_for_confirmation_timer",
+        "data": {
+            "label": "Таймер ожидания подтверждения (15 минут)",
+            "children": [
+                "confirmation_timeout_gateway"
+            ],
+            "eventType": "timer"
+        },
+        "type": "event"
+    },
+    {
+        "id": "confirmation_timeout_gateway",
+        "data": {
+            "label": "Время ожидания истекло?",
+            "children": [
+                "cancel_order_task",
+                "create_order_task"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    }
+]

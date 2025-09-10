@@ -1,0 +1,142 @@
+[
+    {
+        "id": "start_event",
+        "data": {
+            "label": "Авторизация сотрудника в системе HR",
+            "children": [
+                "check_inn_snils"
+            ],
+            "eventType": "start"
+        },
+        "type": "event"
+    },
+    {
+        "id": "check_inn_snils",
+        "data": {
+            "label": "Проверка ИНН и СНИЛС через API",
+            "children": [
+                "gateway_inn_snils"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "gateway_inn_snils",
+        "data": {
+            "label": "Совпадение данных ИНН и СНИЛС?",
+            "children": [
+                "task_fill_form",
+                "task_request_accountant"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "task_fill_form",
+        "data": {
+            "label": "Сотрудник заполняет анкету",
+            "children": [
+                "gateway_form_complete"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "task_request_accountant",
+        "data": {
+            "label": "Запрос в бухгалтерию для проверки ИНН",
+            "children": [
+                "gateway_accountant_response"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "gateway_form_complete",
+        "data": {
+            "label": "Анкета заполнена?",
+            "children": [
+                "task_log_result",
+                "task_notify_hr_manager"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "gateway_accountant_response",
+        "data": {
+            "label": "Ответ бухгалтерии получен?",
+            "children": [
+                "task_log_result",
+                "task_notify_hr_manager"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "task_log_result",
+        "data": {
+            "label": "Логирование результатов проверки",
+            "children": [
+                "task_generate_report"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "task_generate_report",
+        "data": {
+            "label": "Формирование отчета для руководителя",
+            "children": [
+                "end_event_success"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "task_notify_hr_manager",
+        "data": {
+            "label": "Уведомление HR-менеджера об ошибке",
+            "children": [
+                "task_manual_verification"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "task_manual_verification",
+        "data": {
+            "label": "Ручная верификация данных HR-менеджером",
+            "children": [
+                "end_event_manual"
+            ],
+            "eventType": "task"
+        },
+        "type": "task"
+    },
+    {
+        "id": "end_event_success",
+        "data": {
+            "label": "Проверка успешно завершена",
+            "eventType": "end"
+        },
+        "type": "event"
+    },
+    {
+        "id": "end_event_manual",
+        "data": {
+            "label": "Ручная верификация завершена",
+            "eventType": "end"
+        },
+        "type": "event"
+    }
+]

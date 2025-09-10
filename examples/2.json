@@ -1,0 +1,126 @@
+[
+    {
+        "id": "start_event",
+        "data": {
+            "label": "Начало регистрации пользователя",
+            "children": [
+                "check_unique_email"
+            ],
+            "eventType": "start"
+        },
+        "type": "event"
+    },
+    {
+        "id": "check_unique_email",
+        "data": {
+            "label": "Проверка уникальности email",
+            "children": [
+                "unique_email_gateway"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "unique_email_gateway",
+        "data": {
+            "label": "Email уникален?",
+            "children": [
+                "email_is_unique",
+                "email_is_not_unique"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "email_is_unique",
+        "data": {
+            "label": "Регистрация пользователя",
+            "children": [
+                "registration_success"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "email_is_not_unique",
+        "data": {
+            "label": "Запрос подтверждения email",
+            "children": [
+                "confirmation_request_gateway"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "confirmation_request_gateway",
+        "data": {
+            "label": "Подтверждение получено?",
+            "children": [
+                "confirmation_received",
+                "confirmation_not_received"
+            ],
+            "gatewayType": "xor"
+        },
+        "type": "gateway"
+    },
+    {
+        "id": "confirmation_received",
+        "data": {
+            "label": "Активация аккаунта",
+            "children": [
+                "registration_success"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "confirmation_not_received",
+        "data": {
+            "label": "Отмена регистрации",
+            "children": [
+                "registration_failed"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "registration_success",
+        "data": {
+            "label": "Успешная регистрация",
+            "children": [
+                "end_event"
+            ]
+        },
+        "type": "task"
+    },
+    {
+        "id": "registration_failed",
+        "data": {
+            "label": "Регистрация завершена с ошибкой",
+            "children": [],
+            "eventType": "end"
+        },
+        "type": "event"
+    },
+    {
+        "id": "error_email_check",
+        "data": {
+            "label": "Ошибка при проверке email",
+            "children": [
+                "registration_failed"
+            ],
+            "eventType": "error"
+        },
+        "type": "event"
+    },
+    {
+        "id": "end_event",
+        "data": {
+            "label": "Регистрация завершена успешно",
+            "children": [],
+            "eventType": "end"
+        },
+        "type": "event"
+    }
+]

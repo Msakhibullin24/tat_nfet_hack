@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin4_container
+    image: dpage/pgadmin4:7
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  app:
+    build:
+      context: ./backend
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      - db
+      - theonemarket 
+      # Если нужно зависеть от обоих theonemarketmax
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mydb
+      - BACKEND_PORT=${BACKEND_PORT:-3000}
+      - THEONEMARKET_HOST=theonemarket # Renamed from OLLAMA_QAT_HOST
+      - THEONEMARKET_PORT=${THEONEMARKET_PORT:-11434} # Renamed from OLLAMA_QAT_PORT
+      - FASTAPI_THEONEMARKET_PORT=${FASTAPI_THEONEMARKET_PORT:-8821} # Renamed from FASTAPI_QAT_PORT
+      - AI_API_URL=http://${THEONEMARKET_HOST:-theonemarket}:${THEONEMARKET_PORT:-11434}/api/generate # Updated variables
+      - AI_TRANSCRIPTION_URL=http://${THEONEMARKET_HOST:-theonemarket}:${FASTAPI_THEONEMARKET_PORT:-8821}/transcribe/ # Updated variables
+      - USE_SSL=${USE_SSL:-false}
+
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:3000"
+    depends_on:
+      - app
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT:-3000}
+      - FRONTEND_HOST=${FRONTEND_HOST:-localhost}
+      - USE_SSL=${USE_SSL:-false}
+
+  theonemarket: # Renamed from ollama_qat
+    build:
+      context: .
+    ports:
+      - "${THEONEMARKET_PORT:-11434}:11434" # Renamed variable
+      - "${FASTAPI_THEONEMARKET_PORT:-8821}:8821" # Renamed variable
+    volumes:
+      - theonemarket_data:/root/.ollama # Renamed volume
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1 
+              capabilities: [ gpu ]
+    environment:
+      - OLLAMA_HOST=0.0.0.0 # Добавлено: Слушать на всех интерфейсах
+      - OLLAMA_FLASH_ATTENTION=1
+      - OLLAMA_KV_CACHE_TYPE=q8_0
+
+      - OLLAMA_PORT=11434 # Port for Ollama inside this container
+      - FASTAPI_PORT=8821 # Port for FastAPI inside this container
+      - MODEL_NAME=theonemarket # Model name to create
+      - BASE_MODEL=gemma3:27b-it-qat
+      - MODEL_FILE_PATH=/modelfiles/Modelfile_qat.txt # Path to Modelfile inside container
+
+volumes:
+  postgres_data:
+  pgadmin-data:
+  theonemarket_data: # Renamed volume
